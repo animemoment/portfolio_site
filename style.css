@@ -1,603 +1,361 @@
-/* === БАЗОВЫЕ НАСТРОЙКИ === */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-:root {
-    --bg-primary: #0d1117;
-    --bg-secondary: #161b22;
-    --bg-tertiary: #21262d;
-    --text-primary: #f0f6fc;
-    --text-secondary: #8b949e;
-    --accent: #58a6ff;
-    --accent-hover: #79c0ff;
-    --success: #3fb950;
-    --warning: #d29922;
-    --danger: #f85149;
-    --operator: #ff7b72;
-    --function: #d2a8ff;
-    --border: #30363d;
-    --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-}
-
 body {
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    color: var(--text-primary);
+    font-family: 'Roboto', sans-serif;
+    background: #0a0a1a;
+    color: #ffffff;
+    overflow: hidden;
+    height: 100vh;
 }
 
-/* === КОНТЕЙНЕР === */
-.calculator-container {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 20px;
-    max-width: 1000px;
+#gameCanvas {
+    display: block;
     width: 100%;
-    background: var(--bg-secondary);
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
+    height: 100vh;
+    cursor: crosshair;
 }
 
-/* === ПАНЕЛЬ ИСТОРИИ === */
-.history-panel {
-    background: var(--bg-tertiary);
+/* === UI ОВЕРЛЕЙ (справа, компактный) === */
+.ui-overlay {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    background: linear-gradient(135deg, rgba(20, 20, 40, 0.98), rgba(30, 30, 60, 0.98));
+    backdrop-filter: blur(10px);
     border-radius: 15px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--border);
-    max-height: 600px;
+    border: 2px solid rgba(100, 150, 255, 0.5);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+    width: 280px;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
-.history-header {
+.ui-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--border);
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(100, 150, 255, 0.3);
+    cursor: move;
 }
 
-.history-header h3 {
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.ui-header h2 {
+    font-family: 'Orbitron', sans-serif;
+    color: #6495ff;
+    font-size: 1.2rem;
+    text-shadow: 0 0 10px rgba(100, 149, 255, 0.5);
 }
 
-.clear-history {
-    background: transparent;
-    border: none;
-    color: var(--danger);
-    cursor: pointer;
-    padding: 8px;
+.toggle-btn {
+    background: rgba(100, 150, 255, 0.3);
+    border: 1px solid rgba(100, 150, 255, 0.5);
     border-radius: 8px;
-    transition: all 0.2s;
-}
-
-.clear-history:hover {
-    background: rgba(248, 81, 73, 0.2);
-}
-
-.history-list {
-    flex: 1;
-    overflow-y: auto;
-    margin-bottom: 15px;
-}
-
-.history-list::-webkit-scrollbar {
-    width: 6px;
-}
-
-.history-list::-webkit-scrollbar-track {
-    background: var(--bg-secondary);
-    border-radius: 3px;
-}
-
-.history-list::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 3px;
-}
-
-.history-item {
-    background: var(--bg-secondary);
-    padding: 12px;
-    border-radius: 10px;
-    margin-bottom: 10px;
+    color: #fff;
+    width: 35px;
+    height: 35px;
     cursor: pointer;
-    transition: all 0.2s;
-    border: 1px solid transparent;
+    font-size: 1.2rem;
+    transition: all 0.3s;
 }
 
-.history-item:hover {
-    border-color: var(--accent);
-    transform: translateX(5px);
+.toggle-btn:hover {
+    background: rgba(100, 150, 255, 0.5);
 }
 
-.history-expression {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    margin-bottom: 5px;
-    word-break: break-all;
+.ui-content {
+    padding: 15px 20px;
+    transition: all 0.3s;
 }
 
-.history-result {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.1rem;
-    color: var(--success);
-    font-weight: 700;
+.ui-content.collapsed {
+    display: none;
 }
 
-.history-empty {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text-secondary);
-}
-
-.history-empty i {
-    font-size: 3rem;
+.control-group {
     margin-bottom: 15px;
-    opacity: 0.5;
 }
 
-.history-footer {
-    padding-top: 15px;
-    border-top: 1px solid var(--border);
+.control-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #c0c0e0;
+    font-size: 0.9rem;
 }
 
-.export-history {
+.control-group input[type="range"] {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(100, 100, 150, 0.4);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.control-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6495ff, #4060ff);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(100, 149, 255, 0.5);
+}
+
+.wind-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+#windDirection {
+    font-size: 1.5rem;
+    color: #6495ff;
+}
+
+#windValueText {
+    color: #fff;
+    font-weight: 600;
+}
+
+.control-group select {
+    width: 100%;
+    padding: 10px;
+    background: rgba(30, 30, 60, 0.9);
+    border: 1px solid rgba(100, 150, 255, 0.5);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.fire-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    font-family: 'Orbitron', sans-serif;
+    background: linear-gradient(135deg, #ff4757, #ff6b81);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 5px 25px rgba(255, 71, 87, 0.5);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.fire-btn:hover:not(:disabled) {
+    transform: scale(1.03);
+    box-shadow: 0 10px 35px rgba(255, 71, 87, 0.7);
+}
+
+.fire-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.6;
+}
+
+.reset-btn {
     width: 100%;
     padding: 12px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.export-history:hover {
-    background: var(--accent);
-    border-color: var(--accent);
-}
-
-/* === ОСНОВНАЯ ПАНЕЛЬ === */
-.calculator-main {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.toggle-history {
-    display: none;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
-    padding: 10px 15px;
-    border-radius: 10px;
-    cursor: pointer;
-    align-self: flex-start;
-}
-
-/* === ДИСПЛЕЙ === */
-.display {
-    background: var(--bg-tertiary);
-    border-radius: 15px;
-    padding: 25px;
-    text-align: right;
-    border: 1px solid var(--border);
-    position: relative;
-}
-
-.display-expression {
-    font-family: 'JetBrains Mono', monospace;
     font-size: 1rem;
-    color: var(--text-secondary);
-    min-height: 24px;
-    margin-bottom: 10px;
-    word-break: break-all;
-}
-
-.display-result {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 2.5rem;
-    color: var(--text-primary);
-    font-weight: 700;
-    word-break: break-all;
-    line-height: 1.2;
-}
-
-.display-mode {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    font-size: 0.75rem;
-    background: var(--accent);
-    color: var(--bg-primary);
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-weight: 700;
-}
-
-/* === ПЕРЕКЛЮЧАТЕЛИ РЕЖИМОВ === */
-.mode-switches {
-    display: flex;
-    gap: 10px;
-}
-
-.mode-btn {
-    flex: 1;
-    padding: 10px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    border-radius: 10px;
-    cursor: pointer;
     font-weight: 600;
-    font-size: 0.85rem;
-    transition: all 0.2s;
-}
-
-.mode-btn:hover {
-    border-color: var(--accent);
-}
-
-.mode-btn.active {
-    background: var(--accent);
-    color: var(--bg-primary);
-    border-color: var(--accent);
-}
-
-/* === КЛАВИАТУРА === */
-.keypad {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-    flex: 1;
-}
-
-.btn {
-    padding: 18px 10px;
+    background: linear-gradient(135deg, #6495ff, #4060ff);
+    color: white;
     border: none;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 600;
+    border-radius: 10px;
     cursor: pointer;
-    transition: all 0.15s;
-    font-family: 'Inter', sans-serif;
-    position: relative;
+    transition: all 0.3s;
+}
+
+.reset-btn:hover {
+    box-shadow: 0 5px 25px rgba(100, 149, 255, 0.5);
+}
+
+.stats {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid rgba(100, 150, 255, 0.3);
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    color: #a0a0c0;
+    font-size: 0.9rem;
+}
+
+.stat-row b {
+    color: #6495ff;
+    font-size: 1.1rem;
+}
+
+/* === СТАТИСТИКА ПОЛЁТА (сверху) === */
+.flight-stats {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 90;
+    background: linear-gradient(135deg, rgba(20, 20, 40, 0.95), rgba(30, 30, 60, 0.95));
+    backdrop-filter: blur(10px);
+    padding: 12px 25px;
+    border-radius: 10px;
+    border: 2px solid rgba(100, 150, 255, 0.5);
+    display: flex;
+    gap: 25px;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
+}
+
+.flight-stats span {
+    color: #a0a0c0;
+    font-size: 0.9rem;
+}
+
+.flight-stats b {
+    color: #00ff88;
+    font-size: 1.1rem;
+    margin-left: 5px;
+}
+
+/* === МИНИ-КАРТА (внизу справа) === */
+.minimap-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 90;
+    background: rgba(20, 20, 40, 0.95);
+    border: 2px solid rgba(100, 150, 255, 0.5);
+    border-radius: 10px;
     overflow: hidden;
 }
 
-.btn::after {
-    content: '';
-    position: absolute;
+#minimap {
+    width: 200px;
+    height: 120px;
+    display: block;
+}
+
+/* === СООБЩЕНИЕ О ПОПАДАНИИ === */
+.hit-message {
+    position: fixed;
     top: 50%;
     left: 50%;
-    width: 0;
-    height: 0;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: width 0.3s, height 0.3s;
+    transform: translate(-50%, -50%) scale(0);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #ff4757;
+    text-shadow: 0 0 30px rgba(255, 71, 87, 1);
+    z-index: 200;
+    pointer-events: none;
+    transition: transform 0.3s;
 }
 
-.btn:active::after {
-    width: 200px;
-    height: 200px;
+.hit-message.active {
+    transform: translate(-50%, -50%) scale(1);
+    animation: pulse 0.5s ease;
 }
 
-.btn.num {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1px solid var(--border);
+@keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.2); }
 }
 
-.btn.num:hover {
-    background: var(--bg-primary);
-    border-color: var(--accent);
-}
-
-.btn.operator {
-    background: rgba(255, 123, 114, 0.15);
-    color: var(--operator);
-    border: 1px solid rgba(255, 123, 114, 0.3);
-}
-
-.btn.operator:hover {
-    background: rgba(255, 123, 114, 0.25);
-}
-
-.btn.func {
-    background: rgba(210, 168, 255, 0.15);
-    color: var(--function);
-    border: 1px solid rgba(210, 168, 255, 0.3);
-    font-size: 0.9rem;
-}
-
-.btn.func:hover {
-    background: rgba(210, 168, 255, 0.25);
-}
-
-.btn.memory {
-    background: rgba(88, 166, 255, 0.15);
-    color: var(--accent);
-    border: 1px solid rgba(88, 166, 255, 0.3);
-    font-size: 0.85rem;
-}
-
-.btn.memory:hover {
-    background: rgba(88, 166, 255, 0.25);
-}
-
-.btn.clear {
-    background: rgba(248, 81, 73, 0.15);
-    color: var(--danger);
-    border: 1px solid rgba(248, 81, 73, 0.3);
-}
-
-.btn.clear:hover {
-    background: rgba(248, 81, 73, 0.25);
-}
-
-.btn.equals {
-    background: linear-gradient(135deg, var(--success), #2ea043);
-    color: white;
-    border: none;
-}
-
-.btn.equals:hover {
-    background: linear-gradient(135deg, #46c85a, #3fb950);
-    transform: scale(1.02);
-}
-
-.btn:active {
-    transform: scale(0.95);
-}
-
-/* === ИНДИКАТОР ПАМЯТИ === */
-.memory-indicator {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 15px;
-    background: var(--bg-tertiary);
-    border-radius: 10px;
-    font-size: 0.9rem;
-    color: var(--accent);
-    border: 1px solid var(--border);
-}
-
-.memory-indicator.hidden {
-    display: none;
-}
-
-/* === МОДАЛЬНОЕ ОКНО === */
-.modal {
+/* === ЭКРАН ПОБЕДЫ === */
+.game-over-screen {
     display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 1000;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 300;
     justify-content: center;
     align-items: center;
-    backdrop-filter: blur(5px);
-}
-
-.modal.active {
-    display: flex;
-}
-
-.modal-content {
-    background: var(--bg-secondary);
-    padding: 30px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    max-width: 400px;
-    width: 90%;
-    animation: modalSlide 0.3s ease;
-}
-
-@keyframes modalSlide {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.modal-content h3 {
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.fraction-input {
-    display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 25px;
 }
 
-.fraction-input input {
-    width: 120px;
-    padding: 12px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text-primary);
-    font-size: 1.2rem;
-    text-align: center;
-    font-family: 'JetBrains Mono', monospace;
-}
-
-.fraction-input input:focus {
-    outline: none;
-    border-color: var(--accent);
-}
-
-.fraction-line {
-    width: 120px;
-    height: 3px;
-    background: var(--text-secondary);
-    border-radius: 2px;
-}
-
-.modal-buttons {
+.game-over-screen.active {
     display: flex;
-    gap: 15px;
+    animation: fadeIn 0.5s ease;
 }
 
-.btn-cancel, .btn-confirm {
-    flex: 1;
-    padding: 14px;
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.game-over-screen h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3rem;
+    color: #6495ff;
+    margin-bottom: 20px;
+    text-shadow: 0 0 30px rgba(100, 149, 255, 0.7);
+}
+
+.game-over-screen p {
+    font-size: 1.4rem;
+    color: #c0c0e0;
+    margin-bottom: 30px;
+    text-align: center;
+    line-height: 1.8;
+}
+
+.restart-btn {
+    padding: 20px 50px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    font-family: 'Orbitron', sans-serif;
+    background: linear-gradient(135deg, #6495ff, #4060ff);
+    color: white;
     border: none;
-    border-radius: 10px;
-    font-weight: 600;
+    border-radius: 15px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s;
+    box-shadow: 0 10px 40px rgba(100, 149, 255, 0.5);
 }
 
-.btn-cancel {
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
-    border: 1px solid var(--border);
-}
-
-.btn-cancel:hover {
-    background: var(--bg-primary);
-}
-
-.btn-confirm {
-    background: var(--accent);
-    color: var(--bg-primary);
-}
-
-.btn-confirm:hover {
-    background: var(--accent-hover);
+.restart-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 50px rgba(100, 149, 255, 0.7);
 }
 
 /* === АДАПТИВ === */
-@media (max-width: 900px) {
-    .calculator-container {
-        grid-template-columns: 1fr;
+@media (max-width: 768px) {
+    .ui-overlay {
+        right: 10px;
+        top: 10px;
+        width: 250px;
     }
-
-    .history-panel {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 999;
-        max-height: none;
-        border-radius: 0;
+    
+    .flight-stats {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
     }
-
-    .history-panel.active {
-        display: flex;
+    
+    .minimap-container {
+        bottom: 10px;
+        right: 10px;
     }
-
-    .toggle-history {
-        display: flex;
+    
+    #minimap {
+        width: 150px;
+        height: 100px;
     }
-
-    .keypad {
-        grid-template-columns: repeat(5, 1fr);
-        gap: 8px;
-    }
-
-    .btn {
-        padding: 15px 8px;
-        font-size: 0.9rem;
-    }
-
-    .display-result {
-        font-size: 2rem;
-    }
-}
-
-@media (max-width: 500px) {
-    .keypad {
-        grid-template-columns: repeat(4, 1fr);
-    }
-
-    .btn.func[data-action="asin"],
-    .btn.func[data-action="acos"],
-    .btn.func[data-action="atan"],
-    .btn.func[data-action="exp"],
-    .btn.func[data-action="e"] {
-        display: none;
-    }
-
-    .mode-switches {
-        justify-content: center;
-    }
-
-    .mode-btn {
-        flex: 0 0 auto;
-        padding: 10px 20px;
-    }
-}
-
-/* === АНИМАЦИИ === */
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-.calculating {
-    animation: pulse 0.5s ease infinite;
-}
-
-/* === УВЕДОМЛЕНИЯ === */
-.toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    padding: 15px 25px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-    z-index: 2000;
-    transition: transform 0.3s ease;
-}
-
-.toast.show {
-    transform: translateX(-50%) translateY(0);
-}
-
-.toast.error {
-    border-color: var(--danger);
-    color: var(--danger);
-}
-
-.toast.success {
-    border-color: var(--success);
-    color: var(--success);
 }

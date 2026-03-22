@@ -3,140 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Инженерный Калькулятор Pro</title>
+    <title>Артиллерийский Симулятор</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
     
-    <div class="calculator-container">
-        <!-- Левая панель - История -->
-        <aside class="history-panel" id="historyPanel">
-            <div class="history-header">
-                <h3><i class="fas fa-history"></i> История</h3>
-                <button class="clear-history" id="clearHistory" title="Очистить историю">
-                    <i class="fas fa-trash"></i>
-                </button>
+    <!-- Компактный интерфейс (справа, не закрывает пушку) -->
+    <div class="ui-overlay" id="uiOverlay">
+        <div class="ui-header">
+            <h2>🎯 Артиллерия</h2>
+            <button id="toggleUIBtn" class="toggle-btn">📋</button>
+        </div>
+        
+        <div class="ui-content" id="uiContent">
+            <div class="control-group">
+                <label>📐 Угол: <span id="angleValue">45</span>°</label>
+                <input type="range" id="angleSlider" min="0" max="90" value="45">
             </div>
-            <div class="history-list" id="historyList">
-                <div class="history-empty">
-                    <i class="fas fa-clock"></i>
-                    <p>История пуста</p>
+            
+            <div class="control-group">
+                <label>💪 Сила: <span id="powerValue">70</span>%</label>
+                <input type="range" id="powerSlider" min="10" max="100" value="70">
+            </div>
+            
+            <div class="control-group">
+                <label>💨 Ветер: <span id="windValue">0</span></label>
+                <div class="wind-display">
+                    <span id="windDirection">↔</span>
+                    <span id="windValueText">0</span>
                 </div>
             </div>
-            <div class="history-footer">
-                <button class="export-history" id="exportHistory">
-                    <i class="fas fa-download"></i> Экспорт
-                </button>
+            
+            <div class="control-group">
+                <label>🔫 Снаряд</label>
+                <select id="ammoType">
+                    <option value="normal">Обычный</option>
+                    <option value="heavy">Тяжёлый</option>
+                    <option value="explosive">Фугасный</option>
+                </select>
             </div>
-        </aside>
-
-        <!-- Основная панель калькулятора -->
-        <main class="calculator-main">
-            <!-- Переключатель истории для мобильных -->
-            <button class="toggle-history" id="toggleHistory">
-                <i class="fas fa-history"></i>
-            </button>
-
-            <!-- Дисплей -->
-            <div class="display">
-                <div class="display-expression" id="expression"></div>
-                <div class="display-result" id="result">0</div>
-                <div class="display-mode" id="displayMode">DEG</div>
-            </div>
-
-            <!-- Режимы -->
-            <div class="mode-switches">
-                <button class="mode-btn active" id="degMode" title="Градусы">DEG</button>
-                <button class="mode-btn" id="radMode" title="Радианы">RAD</button>
-                <button class="mode-btn" id="fracMode" title="Дроби">a/b</button>
-            </div>
-
-            <!-- Кнопки -->
-            <div class="keypad">
-                <!-- Инженерные функции (ряд 1) -->
-                <button class="btn func" data-action="sin">sin</button>
-                <button class="btn func" data-action="cos">cos</button>
-                <button class="btn func" data-action="tan">tan</button>
-                <button class="btn func" data-action="log">log</button>
-                <button class="btn func" data-action="ln">ln</button>
-
-                <!-- Инженерные функции (ряд 2) -->
-                <button class="btn func" data-action="sqrt">√</button>
-                <button class="btn func" data-action="cbrt">∛</button>
-                <button class="btn func" data-action="pow">xʸ</button>
-                <button class="btn func" data-action="factorial">n!</button>
-                <button class="btn func" data-action="pi">π</button>
-
-                <!-- Инженерные функции (ряд 3) -->
-                <button class="btn func" data-action="asin">sin⁻¹</button>
-                <button class="btn func" data-action="acos">cos⁻¹</button>
-                <button class="btn func" data-action="atan">tan⁻¹</button>
-                <button class="btn func" data-action="exp">eˣ</button>
-                <button class="btn func" data-action="e">e</button>
-
-                <!-- Память и очистка -->
-                <button class="btn memory" data-action="mc">MC</button>
-                <button class="btn memory" data-action="mr">MR</button>
-                <button class="btn memory" data-action="m+">M+</button>
-                <button class="btn memory" data-action="m-">M-</button>
-                <button class="btn clear" data-action="clear">AC</button>
-
-                <!-- Цифры и операции -->
-                <button class="btn num" data-action="7">7</button>
-                <button class="btn num" data-action="8">8</button>
-                <button class="btn num" data-action="9">9</button>
-                <button class="btn operator" data-action="divide">÷</button>
-                <button class="btn clear" data-action="delete"><i class="fas fa-backspace"></i></button>
-
-                <button class="btn num" data-action="4">4</button>
-                <button class="btn num" data-action="5">5</button>
-                <button class="btn num" data-action="6">6</button>
-                <button class="btn operator" data-action="multiply">×</button>
-                <button class="btn func" data-action="percent">%</button>
-
-                <button class="btn num" data-action="1">1</button>
-                <button class="btn num" data-action="2">2</button>
-                <button class="btn num" data-action="3">3</button>
-                <button class="btn operator" data-action="subtract">−</button>
-                <button class="btn func" data-action="frac">a/b</button>
-
-                <button class="btn num" data-action="0">0</button>
-                <button class="btn num" data-action="dot">.</button>
-                <button class="btn num" data-action="00">00</button>
-                <button class="btn operator" data-action="add">+</button>
-                <button class="btn equals" data-action="equals">=</button>
-
-                <!-- Скобки -->
-                <button class="btn func" data-action="parenthesis">(</button>
-                <button class="btn func" data-action="parenthesis">)</button>
-                <button class="btn func" data-action="abs">|x|</button>
-                <button class="btn func" data-action="mod">mod</button>
-                <button class="btn func" data-action="inv">1/x</button>
-            </div>
-
-            <!-- Информация о памяти -->
-            <div class="memory-indicator" id="memoryIndicator">
-                <i class="fas fa-memory"></i> <span id="memoryValue">0</span>
-            </div>
-        </main>
-    </div>
-
-    <!-- Модальное окно для дробей -->
-    <div class="modal" id="fractionModal">
-        <div class="modal-content">
-            <h3>Ввод дроби</h3>
-            <div class="fraction-input">
-                <input type="number" id="fracNumerator" placeholder="Числитель" value="1">
-                <span class="fraction-line"></span>
-                <input type="number" id="fracDenominator" placeholder="Знаменатель" value="2">
-            </div>
-            <div class="modal-buttons">
-                <button class="btn-cancel" id="fracCancel">Отмена</button>
-                <button class="btn-confirm" id="fracConfirm">Вставить</button>
+            
+            <button id="fireBtn" class="fire-btn">🔥 ОГОНЬ!</button>
+            <button id="resetBtn" class="reset-btn">🔄 Заново</button>
+            
+            <div class="stats">
+                <div class="stat-row">
+                    <span>💥 Выстрелов:</span>
+                    <b id="shotsCount">0</b>
+                </div>
+                <div class="stat-row">
+                    <span>🎯 Попаданий:</span>
+                    <b id="hitsCount">0</b>
+                </div>
+                <div class="stat-row">
+                    <span>🏢 Разрушено:</span>
+                    <b id="buildingsDestroyed">0</b>
+                </div>
             </div>
         </div>
+    </div>
+    
+    <!-- Статистика полёта (отдельно, сверху) -->
+    <div class="flight-stats" id="flightStats">
+        <span>📏 Дальность: <b id="rangeDisplay">0</b>м</span>
+        <span>📈 Высота: <b id="heightDisplay">0</b>м</span>
+        <span>⏱️ Время: <b id="flightTime">0</b>с</span>
+    </div>
+    
+    <!-- Мини-карта (внизу справа) -->
+    <div class="minimap-container">
+        <canvas id="minimap"></canvas>
+    </div>
+    
+    <!-- Канвас для игры -->
+    <canvas id="gameCanvas"></canvas>
+    
+    <!-- Сообщение о попадании -->
+    <div id="hitMessage" class="hit-message"></div>
+    
+    <!-- Экран победы -->
+    <div id="gameOverScreen" class="game-over-screen">
+        <h2 id="gameOverTitle">🎯 МИССИЯ ВЫПОЛНЕНА!</h2>
+        <p id="gameOverStats"></p>
+        <button id="restartBtn" class="restart-btn">🔄 Новая миссия</button>
     </div>
 
     <script src="script.js"></script>
